@@ -11,20 +11,32 @@ function Board(ctx, rows, cols) {
             }
         }
     }
+
+    this.move = function () {
+
+    }
+
+    this.getBoardState = function () {
+        return board;
+    }
 }
 
-function startGame(ctx, row, col) {
+function play(ctx, row, col) {
+    var currentPlayer = 1;
     var pieces = {
         'X': 0,
         'Y': 0
     };
-    var currentPlayer = 1;
     var board = new Board(ctx, row, col);
     board.draw();
 }
 
-function move() {
+function calculateTerminatingCondition(boardState) {
+    // calculates the terminating condition based on the board state
+    //  
+    return {
 
+    }
 }
 
 function swapPlayer(currentPlayer) {
