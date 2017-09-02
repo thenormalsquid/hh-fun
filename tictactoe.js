@@ -3,26 +3,35 @@ var canvas = document.getElementById('c'),
 
 function Board(ctx, rows, cols) {
     var board = [];
-    this.draw = function (rows, cols) {
+    this.draw = function () {
         for (var i = 0; i < rows; i++) {
+            board[i] = [];
             for (var j = 0; j < cols; j++) {
-
+                board[i].push('');
             }
         }
     }
 }
 
-
-// @param rows <number> rows of board
-// @param cols <number> columns of board 
-function initializeGame(rows, cols) {
-
-}
-
-function startGame(w, h) {
+function startGame(ctx, row, col) {
     var pieces = {
         'X': 0,
         'Y': 0
     };
     var currentPlayer = 1;
+    var board = new Board(ctx, row, col);
+    board.draw();
 }
+
+function move() {
+
+}
+
+function swapPlayer(currentPlayer) {
+    if (currentPlayer === 1) {
+        return 2;
+    }
+    return 1;
+}
+
+startGame(ctx, 3, 3);
