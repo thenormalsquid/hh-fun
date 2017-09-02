@@ -1,0 +1,127 @@
+1(a)
+
+
+1(b)
+
+<!--
+  To test your knowledge of the JavaScript language we would like you to
+  answer the two questions below.
+
+  1. Each link should be able to tell you its number. Please explain why this is
+  not currently happening despite the naive intention of the for loop block.
+
+  2. Edit the contents of the <script> tag such that the issue you
+  identified in question 1 is addressed.
+-->
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>js knowledge screener</title>
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <style type="text/css">
+        #linkWrapper {
+            width: 500px;
+            border: 1px solid #000;
+            padding: 1em;
+            border-radius: 3px;
+        }
+
+        #linkWrapper > a {
+            display: block;
+            margin-bottom: 1em;
+        }
+    </style>
+</head>
+<body>
+
+<div id="linkWrapper">
+    <a href="#" id="link0">Link 0</a>
+    <a href="#" id="link1">Link 1</a>
+    <a href="#" id="link2">Link 2</a>
+    <a href="#" id="link3">Link 3</a>
+    <a href="#" id="link4">Link 4</a>
+    <a href="#" id="link5">Link 5</a>
+</div>
+
+<script type="application/javascript">
+    var links = document.getElementsByTagName( 'a' );
+
+    for ( var i = 0; i < links.length; i++ ) {
+        (function(i) {
+            links[ i ].addEventListener( 'click', function(e){
+            e.preventDefault();
+            alert( 'This is link #' + i );
+            }, 'false' );
+        })(i);
+    }
+</script>
+
+</body>
+</html>
+
+1b) 
+    1. The i variable loses scope to the for loop inside of the callback function.
+    2. You can wrap it in a closure (iife in my example).
+
+<!--
+  Consider the below HTML document. Something’s going wrong here after the <button> element is
+  clicked twice, can you see what it is?
+
+  To test your basic understanding of DOM events we would like you to suggest at
+  least 2 ways the intended functionality could be restored.
+-->
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>js dom screener</title>
+    <style type="text/css">
+        p {
+            background: yellow;
+            margin: 1em 0;
+            width: 300px;
+            border-radius: 3px;
+            padding: 1em;
+            border: 1px #000 solid;
+        }
+        p.off {
+            background: black;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+</head>
+<body>
+
+<button>Cut/Insert paragraphs</button>
+
+<div id="paragraphWrapper">
+    <p>G'day mate</p>
+    <p>What's occurin'?</p>
+</div>
+
+<script type="application/javascript">
+    $( 'p' ).click(function() {
+        $( this ).toggleClass( "off" );
+    });
+    var p;
+    $( "button" ).click(function() {
+        if ( p ) {
+            p.appendTo( "#paragraphWrapper" );
+            p = null;
+        } else {
+            p = $( "p" ).remove();
+        }
+    });
+</script>
+
+</body>
+</html>
+
+1c)
+    When p is removed in the else block of the button click, p no  longer has the click event handler attached to it. Use detach
+    to remove the elements from the page instead, assign the returned node from the detach method to p and next time the button is clicked,
+    append p to the div.
+    
