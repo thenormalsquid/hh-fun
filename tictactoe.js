@@ -34,22 +34,6 @@
         this.rows = n;
         this.cols = n;
         this.cells = [];
-
-        this.validateMove = function (player, point) {
-            // predicate function to determine if legal move (ie; in an empty spot)
-            if (this.cells.length) {
-                var cell = this.cells.find(function (c) {
-                    return c.clickInBounds(point)
-                });
-                var indices = cell.getIndices();
-                var isSpotOpen = this.board[indices[0]][indices[1]] === '';
-                if (isSpotOpen) {
-                    this.board[indices[0]][indices[1]] = player.name;
-                    return true;
-                }
-            }
-            return false;
-        }
     }
 
     Board.prototype.draw = function () {
@@ -101,11 +85,19 @@
         // refreshes the board and adds a player piece, using the player
         // instance  and x, y point object
         // returns a bool to let the game function know to swap the player or not (true for yes, false for no) 
-        var validMove = this.validateMove(player, point);
-        if (validMove) {
-            player.draw(point);
+        if (this.cells.length) {
+            var cell = this.cells.find(function (c) {
+                return c.clickInBounds(point)
+            });
+            var indices = cell.getIndices();
+            var isSpotOpen = this.board[indices[0]][indices[1]] === '';
+            if (isSpotOpen) {
+                this.board[indices[0]][indices[1]] = player.name;
+                player.draw(cell);
+                return true;
+            }
         }
-        return validMove;
+        return false;
     }
 
     Board.prototype.checkPlayerWin = function (player, config) {
@@ -187,25 +179,26 @@
         this.name = name;
         this.num = num;
         // private methods, use player.draw
-        this.drawX = function (point) {
+        this.drawX = function (cell) {
             ctx.strokeStyle = 'blue';
             ctx.beginPath();
-            var offset = 60; //TODO: calculate actual offset and only allow in center
+            var offset = 60;
+            console.log(cell)
 
-            ctx.moveTo(point.x - offset, point.y - offset);
-            ctx.lineTo(point.x + offset, point.y + offset);
+            ctx.moveTo((cell.x1 + cell.x0) / 2 - offset, (cell.y1 + cell.y0) / 2 - offset);
+            ctx.lineTo((cell.x1 + cell.x0) / 2 + offset, (cell.y1 + cell.y0) / 2 + offset);
             ctx.stroke();
 
-            ctx.moveTo(point.x + offset, point.y - offset);
-            ctx.lineTo(point.x - offset, point.y + offset);
+            ctx.moveTo((cell.x1 + cell.x0) / 2 + offset, (cell.y1 + cell.y0) / 2 - offset);
+            ctx.lineTo((cell.x1 + cell.x0) / 2 - offset, (cell.y1 + cell.y0) / 2 + offset);
             ctx.stroke();
         }
 
-        this.drawO = function (point) {
+        this.drawO = function (cell) {
             ctx.strokeStyle = 'red';
             ctx.beginPath();
             var offset = 60;
-            ctx.arc(point.x, point.y, offset, 0, Math.PI * 2, true);
+            ctx.arc((cell.x1 + cell.x0) / 2, (cell.y1 + cell.y0) / 2, offset, 0, Math.PI * 2, true);
             ctx.stroke();
         }
     }
@@ -277,8 +270,9 @@
         deleteChild(span);
         deleteChild(endMsg);
 
-        endMsg.style.display = "none";
+        endMsg.style.visibility = "hidden";
         resetButton.style.display = "none";
+        currentPlay.style.display = "block";
 
         var currentPlayer = this.state.players[this.state.currentPlayer];
         var playerText = document.createTextNode(currentPlayer.name);
@@ -286,7 +280,7 @@
 
         if (endingCondition) {
             currentPlay.style.display = "none";
-            endMsg.style.display = "block";
+            endMsg.style.visibility = "visible";
             resetButton.style.display = "block";
             var message = '';
 
