@@ -39,7 +39,9 @@
         this.validateMove = function (player, point) {
             // predicate function to determine if legal move (ie; in an empty spot)
             if (this.cells.length) {
-                var cell = this.cells.find(c => c.clickInBounds(point));
+                var cell = this.cells.find(function (c) {
+                    return c.clickInBounds(point)
+                });
                 var indices = cell.getIndices();
                 var isSpotOpen = this.board[indices[0]][indices[1]] === -1;
                 if (isSpotOpen) {
@@ -62,15 +64,15 @@
         // integer -1 represents empty space
         // 1, 2 represents occupied space by player 1 and 2
         // we'll use the sum of these to determine winning condition
-        for (var i = 0; i < rows; i++) {
+        for (var i = 0; i < this.rows; i++) {
             this.board[i] = [];
-            for (var j = 0; j < cols; j++) {
+            for (var j = 0; j < this.cols; j++) {
                 this.board[i].push(-1);
                 // j for x, i for y
                 var x0 = j * verticalLineSpace,
                     y0 = i * horizontalLineSpace,
                     x1 = x0 + verticalLineSpace,
-                    y1 = y1 + verticalLineSpace;
+                    y1 = y0 + verticalLineSpace;
 
                 this.cells.push(new Cell(x0, y0, x1, y1, i, j));
             }
@@ -98,14 +100,17 @@
         // refreshes the board and adds a player piece, using the player
         // instance  and x, y point object
         // returns a bool to let the game function know to swap the player or not (true for yes, false for no) 
-        if (this.validateMove(player, point)) {
+        var validMove = this.validateMove(player, point);
+        if (validMove) {
             player.draw(point);
         }
-        return false;
+        return validMove;
     }
 
     Board.prototype.checkPlayerWin = function (sum) {
         // returns current player that won or null if no players won
+        // assuming rows and cols always equal, so we'll just use rows.
+        // TODO: refactor code to accept just one value to ensure board is always square
         if (sum === this.rows) {
             // player 1 wins
             return 1;
@@ -123,8 +128,7 @@
     Board.prototype.calculateEndCondition = function () {
         // returns object containing winning condition, winning player, or null if end condition not met
         // check rows
-        var sumRow = 0,
-            sumCol = 0,
+        var sum = 0,
             sumRightDiag = 0,
             emptySpaceCount = 0,
             playerWon;
@@ -156,7 +160,7 @@
         // check columns
         for (var i = 0; i < this.cols; i++) {
             for (var j = 0; j < this.rows; j++) {
-                sum += this.board[row][col];
+                sum += this.board[i][j];
             }
         }
 
@@ -183,6 +187,7 @@
                 player: playerWon
             };
         }
+        return null;
     }
 
     function Player(name, num) {
@@ -207,7 +212,9 @@
         this.drawO = function (point) {
             ctx.strokeStyle = 'red';
             ctx.beginPath();
-            var offset = 40;
+            var offset = 60;
+            ctx.arc(point.x, point.y, offset, 0, Math.PI * 2, true);
+            ctx.stroke();
         }
     }
 
@@ -257,6 +264,7 @@
         var endingCondition = this.board.calculateEndCondition();
         if (!endingCondition && shouldSwapPlayer) {
             this.swapPlayer();
+            console.log(this.state.currentPlayer)
         }
 
         if (endingCondition) {
