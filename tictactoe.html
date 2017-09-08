@@ -1,8 +1,18 @@
 <!DOCTYPE html>
 <html>
 
+<head>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
 <body>
     <main id="container">
+        <header>
+            <div id="gameInfo">
+                <h2 class="player">Current Player: <span id="currPlayer"></span></h2>
+                <button class="resetGame">Reset Game</button>
+            </div>
+        </header>
         <section class="game">
             <canvas role="Tic Tac Toe game board" id="playArea">
             </canvas>

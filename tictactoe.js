@@ -3,7 +3,7 @@
     var canvas = document.getElementById('playArea'),
         ctx = canvas.getContext('2d'),
         size = 600; // set the canvas size
-
+    console.log(canvas.x)
     canvas.height = size;
     canvas.width = size;
 
@@ -263,13 +263,18 @@
         }
     }
 
+    Game.prototype.drawUI = function () {
+        var span = document.getElementById('currPlayer');
+    }
+
     var game = new Game(3);
     game.initialize();
 
     canvas.addEventListener('mouseup', function (e) {
+        var rect = canvas.getBoundingClientRect();
         var point = {
-            x: event.clientX,
-            y: event.clientY
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top
         };
         game.makeMove(point);
     });

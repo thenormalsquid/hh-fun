@@ -1,3 +1,31 @@
+body {
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    /* wanted to use comic sans :P */
+}
+
 #container {
     margin: 0 auto;
+}
+
+.game {
+    display: flex;
+    justify-content: center;
+}
+
+.game canvas {
+    margin-top: 5%;
+}
+
+#gameInfo {
+    display: flex;
+    margin: 0 auto;
+    justify-content: center;
+}
+
+.resetGame {
+    height: 30px;
+    width: 120px;
+    position: relative;
+    left: 120px;
+    top: 18px;
 }
