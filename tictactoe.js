@@ -24,6 +24,10 @@
                 this.board[i].push(-1);
             }
         }
+
+        this.validateMove = function (player, point) {
+            // predicate function to determine if legal move (ie; in an empty spot)
+        }
     }
 
     Board.prototype.draw = function () {
@@ -56,6 +60,7 @@
     Board.prototype.addPiece = function (player, point) {
         // refreshes the board and adds a player piece, using the player
         // instance  and x, y point object
+        // determines if move is valid before swapping the player
     }
 
     Board.prototype.checkPlayerWin = function (sum) {
@@ -142,25 +147,37 @@
     function Player(name) {
         // name is either 'X' or 'O'
         this.name = name;
+        // private methods, use player.draw
+        this.drawX = function (point) {
+            ctx.strokeStyle = 'blue';
+            ctx.beginPath();
+            var offset = 60; //TODO: calculate actual offset and only allow in center
+
+            ctx.moveTo(point.x - offset, point.y - offset);
+            ctx.lineTo(point.x + offset, point.y + offset);
+            ctx.stroke();
+
+            ctx.moveTo(point.x + offset, point.y - offset);
+            ctx.lineTo(point.x - offset, point.y + offset);
+            ctx.stroke();
+        }
+
+        this.drawO = function (point) {
+            ctx.strokeStyle = 'red';
+            ctx.beginPath();
+            var offset = 40;
+        }
     }
 
-    Player.prototype.drawX = function (coord) {
-        // takes coord object and draw x,y at that position
-        ctx.beginPath();
-    }
 
-    Player.prototype.drawO = function (x, y) {
-        ctx.beginPath();
-    }
-
-    Player.prototype.draw = function (x, y) {
+    Player.prototype.draw = function (point) {
         // draw appropriate piece
         if (this.name === 'X') {
-            this.drawX();
+            this.drawX(point);
         }
 
         if (this.name === 'O') {
-            this.drawO();
+            this.drawO(point);
         }
     }
 
@@ -176,8 +193,9 @@
     }
 
     Game.prototype.initialize = function () {
-        // draw the board, set current player
+        // clear the board, draw the board, set current player
         this.board.draw();
+        this.state.currentPlayer = 1;
     }
 
     Game.prototype.swapPlayer = function () {
@@ -189,6 +207,12 @@
         }
     }
 
+    Game.prototype.makeMove = function (point) {
+        // add player to the board, calculate end condition
+        var currentPlayer = this.state.currentPlayer;
+        board.addPiece(this.state.players[currentPlayer], point);
+    }
+
     function normalizePosition(event) {
         // returns object containing coord of mouseclick 
         // {x: <Number>, y: <Number>}
@@ -196,7 +220,12 @@
 
     var game = new Game(3, 3);
     game.initialize();
-    canvas.addEventListener('mouseup', function () {
 
+    canvas.addEventListener('mouseup', function (e) {
+        var point = {
+            x: event.clientX,
+            y: event.clientY
+        };
+        game.makeMove(point);
     });
 })();
