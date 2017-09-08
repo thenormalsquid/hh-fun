@@ -7,25 +7,32 @@
     canvas.height = size;
     canvas.width = size;
 
-    function Cell(x, y) {
+    function Cell(x0, y0, x1, y1, i, j) {
+        // used to determine which space a player piece should be added to
+        this.x0 = x0;
+        this.y0 = y0;
+        this.x1 = x1;
+        this.y1 = y1;
 
+        this.i = i;
+        this.j = j;
+    }
+
+    Cell.prototype.clickInBounds = function (point) {
+        // get current board space based on location of player piece
+        return (
+            point.x >= this.x0 && point.x <= this.x1 &&
+            point.y >= this.y0 && point.y <= this.y1
+        );
     }
 
     function Board(rows, cols) {
         this.board = [];
         this.rows = rows;
         this.cols = cols;
-        // integer -1 represents empty space
-        // 1, 2 represents occupied space by player 1 and 2
-        // we'll use the sum of these to determine winning condition
-        for (var i = 0; i < rows; i++) {
-            this.board[i] = [];
-            for (var j = 0; j < cols; j++) {
-                this.board[i].push(-1);
-            }
-        }
+        this.cells = [];
 
-        this.validateMove = function (player, point) {
+        this.validateMove = function (point) {
             // predicate function to determine if legal move (ie; in an empty spot)
         }
     }
@@ -38,8 +45,24 @@
         var verticalLineSpace = Math.floor(size / this.cols);
         ctx.strokeStyle = 'black';
         ctx.beginPath();
+        // integer -1 represents empty space
+        // 1, 2 represents occupied space by player 1 and 2
+        // we'll use the sum of these to determine winning condition
+        for (var i = 0; i < rows; i++) {
+            this.board[i] = [];
+            for (var j = 0; j < cols; j++) {
+                this.board[i].push(-1);
+                // j for x, i for y
+                var x0 = j * verticalLineSpace,
+                    y0 = i * horizontalLineSpace,
+                    x1 = x0 + verticalLineSpace,
+                    y1 = y1 + verticalLineSpace;
+
+                this.cells.push(new Cell(x0, y0, x1, y1, i, j));
+            }
+        }
+
         // horizontal lines
-        // TODO: map section bounds to the 2d array so we can play user piece in game board on click
         for (var i = 1; i < this.rows; i++) {
             // as we iterate through each line drawn, move y by lineSpace
             ctx.moveTo(10, i * horizontalLineSpace);
@@ -60,7 +83,9 @@
     Board.prototype.addPiece = function (player, point) {
         // refreshes the board and adds a player piece, using the player
         // instance  and x, y point object
-        // determines if move is valid before swapping the player
+        // returns a bool to let the game function know to swap the player or not (true for yes, false for no) 
+
+
     }
 
     Board.prototype.checkPlayerWin = function (sum) {
@@ -210,7 +235,7 @@
     Game.prototype.makeMove = function (point) {
         // add player to the board, calculate end condition
         var currentPlayer = this.state.currentPlayer;
-        board.addPiece(this.state.players[currentPlayer], point);
+        this.board.addPiece(this.state.players[currentPlayer], point);
     }
 
     function normalizePosition(event) {
