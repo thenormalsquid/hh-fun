@@ -70,13 +70,20 @@
             // player 2 wins
             return 2;
         }
+
+        // nobody wins
+        return 0;
     }
 
     Board.prototype.calculateEndCondition = function () {
         // returns object containing winning condition, winning player, or null if end condition not met
         // check rows
-        var sum = 0,
-            emptySpaceCount = 0;
+        var sumRow = 0,
+            sumCol = 0,
+            sumLeftDiag = 0,
+            sumRightDiag = 0,
+            emptySpaceCount = 0,
+            playerWon;
         //  use the empty space count to determine if a draw occurs
         for(var i = 0; i < this.rows; i++) {
             for(var j = 0; j < this.cols; j++) {
@@ -84,10 +91,45 @@
                 if(this.board[i][j] === -1) {
                     emptySpaceCount += 1;
                 }
+                // compute diag sum
+                if(i === j) {
+                    sumRightDiag += this.board[i][j];
+                }
             }
         }
 
-        if(sum === 3) 
+        playerWon = this.checkPlayerWin(sum) || this.checkPlayerWin(sumRightDiag);
+        if(playerWon !== 0) {
+            // short circuit further checks
+            // TODO: find a DRY-er way of doing this
+            return { win: true, player: playerWon };
+        }
+
+        sum = 0;
+        // check columns
+        for(var i = 0; i < this.cols; i++) {
+            for(var j = 0; j < this.rows; j++) {
+                sum += this.board[row][col];
+            }
+        }
+
+        playerWon = this.checkPlayerWin(sum);
+        if(playerWon !== 0) {
+            return {win: true, player: playerWon};
+        }
+
+        // check invert diagonal
+        sum = 0;
+        for(var i = 0; i < this.row; i++) { 
+            for(var j = this.cols - 1; j >= 0; j--) {
+                sum += this.board[i][j];
+            }
+        }
+       
+        playerWon = this.checkPlayerWin(sum);
+        if(playerWon !== 0) {
+            return {win: true, player: playerWon};
+        }
     }
 
     function Player(name) {
