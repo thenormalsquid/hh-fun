@@ -60,12 +60,12 @@
 
     Board.prototype.checkPlayerWin = function (sum) {
         // returns current player that won or null if no players won
-        if (sum === 3) {
+        if (sum === this.rows) {
             // player 1 wins
             return 1;
         }
 
-        if (sum === 6) {
+        if (sum === this.rows * 2) {
             // player 2 wins
             return 2;
         }
