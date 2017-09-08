@@ -3,7 +3,6 @@
     var canvas = document.getElementById('playArea'),
         ctx = canvas.getContext('2d'),
         size = 600; // set the canvas size
-    console.log(canvas.x)
     canvas.height = size;
     canvas.width = size;
 
@@ -265,20 +264,47 @@
         }
 
         if (endingCondition) {
-            // end the game
+            this.drawUI(endingCondition);
         }
     }
 
-    Game.prototype.drawUI = function () {
-        var span = document.getElementById('currPlayer');
-        var child = span.childNodes[0];
+    Game.prototype.drawUI = function (endingCondition) {
+        var span = document.getElementById('currPlayer'),
+            endMsg = document.getElementById('endMsg'),
+            currentPlay = document.getElementById('currentPlayer'),
+            resetButton = document.getElementById('reset');
+
+        deleteChild(span);
+        deleteChild(endMsg);
+
+        endMsg.style.display = "none";
+        resetButton.style.display = "none";
 
         var currentPlayer = this.state.players[this.state.currentPlayer];
         var playerText = document.createTextNode(currentPlayer.name);
-        if (child) {
-            span.removeChild(child);
-        }
         span.appendChild(playerText);
+
+        if (endingCondition) {
+            currentPlay.style.display = "none";
+            endMsg.style.display = "block";
+            resetButton.style.display = "block";
+            var message = '';
+
+            if (endingCondition.win) {
+                message += 'Winner winner chicken dinner! ' + this.state.players[endingCondition.player].name + ' won!';
+            } else {
+                message += 'Draw.';
+            }
+            var text = document.createTextNode(message);
+            endMsg.appendChild(text);
+        }
+    }
+
+    function deleteChild(node) {
+        var child = node.childNodes[0];
+        if (child) {
+            node.removeChild(child);
+        }
     }
 
     var game = new Game(3);

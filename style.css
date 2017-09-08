@@ -27,5 +27,9 @@ body {
     width: 120px;
     position: relative;
     left: 120px;
-    top: 18px;
+    top: 23px;
+    color: #fff;
+    background-color: #000;
+    display: none;
+    border: 0;
 }
