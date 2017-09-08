@@ -263,11 +263,6 @@
         }
     }
 
-    function normalizePosition(event) {
-        // returns object containing coord of mouseclick 
-        // {x: <Number>, y: <Number>}
-    }
-
     var game = new Game(3);
     game.initialize();
 
