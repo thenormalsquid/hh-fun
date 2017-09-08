@@ -94,7 +94,9 @@
         ctx.stroke();
     }
 
-    Board.prototype.clear = function () {}
+    Board.prototype.clear = function () {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
 
     Board.prototype.addPiece = function (player, point) {
         // refreshes the board and adds a player piece, using the player
@@ -234,8 +236,11 @@
 
     Game.prototype.initialize = function () {
         // clear the board, draw the board, set current player
+        this.board.clear();
         this.board.draw();
         this.state.currentPlayer = 1;
+
+        this.drawUI();
     }
 
     Game.prototype.swapPlayer = function () {
@@ -245,6 +250,7 @@
         } else {
             this.state.currentPlayer = 1;
         }
+        this.drawUI();
     }
 
     Game.prototype.makeMove = function (point) {
@@ -265,6 +271,14 @@
 
     Game.prototype.drawUI = function () {
         var span = document.getElementById('currPlayer');
+        var child = span.childNodes[0];
+
+        var currentPlayer = this.state.players[this.state.currentPlayer];
+        var playerText = document.createTextNode(currentPlayer.name);
+        if (child) {
+            span.removeChild(child);
+        }
+        span.appendChild(playerText);
     }
 
     var game = new Game(3);
@@ -277,5 +291,10 @@
             y: e.clientY - rect.top
         };
         game.makeMove(point);
+    });
+
+    var resetGameBtn = document.getElementById('reset');
+    resetGameBtn.addEventListener('click', function () {
+        game.initialize();
     });
 })();
