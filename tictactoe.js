@@ -26,14 +26,28 @@
         );
     }
 
+    Cell.prototype.getIndices = function () {
+        return [this.i, this.j];
+    }
+
     function Board(rows, cols) {
         this.board = [];
         this.rows = rows;
         this.cols = cols;
         this.cells = [];
 
-        this.validateMove = function (point) {
+        this.validateMove = function (player, point) {
             // predicate function to determine if legal move (ie; in an empty spot)
+            if (this.cells.length) {
+                var cell = this.cells.find(c => c.clickInBounds(point));
+                var indices = cell.getIndices();
+                var isSpotOpen = this.board[indices[0]][indices[1]] === -1;
+                if (isSpotOpen) {
+                    this.board[indices[0]][indices[1]] = player.num;
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
@@ -84,8 +98,10 @@
         // refreshes the board and adds a player piece, using the player
         // instance  and x, y point object
         // returns a bool to let the game function know to swap the player or not (true for yes, false for no) 
-
-
+        if (this.validateMove(player, point)) {
+            player.draw(point);
+        }
+        return false;
     }
 
     Board.prototype.checkPlayerWin = function (sum) {
@@ -169,9 +185,10 @@
         }
     }
 
-    function Player(name) {
+    function Player(name, num) {
         // name is either 'X' or 'O'
         this.name = name;
+        this.num = num;
         // private methods, use player.draw
         this.drawX = function (point) {
             ctx.strokeStyle = 'blue';
@@ -209,8 +226,8 @@
     function Game(row, cols) {
         this.state = {
             players: {
-                1: new Player('X'),
-                2: new Player('O')
+                1: new Player('X', 1),
+                2: new Player('O', 2)
             },
             currentPlayer: 1
         };
@@ -235,7 +252,16 @@
     Game.prototype.makeMove = function (point) {
         // add player to the board, calculate end condition
         var currentPlayer = this.state.currentPlayer;
-        this.board.addPiece(this.state.players[currentPlayer], point);
+        var shouldSwapPlayer = this.board.addPiece(this.state.players[currentPlayer], point);
+        // calculate ending condition
+        var endingCondition = this.board.calculateEndCondition();
+        if (!endingCondition && shouldSwapPlayer) {
+            this.swapPlayer();
+        }
+
+        if (endingCondition) {
+            // end the game
+        }
     }
 
     function normalizePosition(event) {
