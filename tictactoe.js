@@ -30,10 +30,10 @@
         return [this.i, this.j];
     }
 
-    function Board(rows, cols) {
+    function Board(n) {
         this.board = [];
-        this.rows = rows;
-        this.cols = cols;
+        this.rows = n;
+        this.cols = n;
         this.cells = [];
 
         this.validateMove = function (player, point) {
@@ -45,7 +45,7 @@
                 var indices = cell.getIndices();
                 var isSpotOpen = this.board[indices[0]][indices[1]] === -1;
                 if (isSpotOpen) {
-                    this.board[indices[0]][indices[1]] = player.num;
+                    this.board[indices[0]][indices[1]] = player.name;
                     return true;
                 }
             }
@@ -62,12 +62,12 @@
         ctx.strokeStyle = 'black';
         ctx.beginPath();
         // integer -1 represents empty space
-        // 1, 2 represents occupied space by player 1 and 2
+        // 1, 5 represents occupied space by player 1 and 2
         // we'll use the sum of these to determine winning condition
         for (var i = 0; i < this.rows; i++) {
             this.board[i] = [];
             for (var j = 0; j < this.cols; j++) {
-                this.board[i].push(-1);
+                this.board[i].push('');
                 // j for x, i for y
                 var x0 = j * verticalLineSpace,
                     y0 = i * horizontalLineSpace,
@@ -107,7 +107,7 @@
         return validMove;
     }
 
-    Board.prototype.checkPlayerWin = function (sum) {
+    Board.prototype.checkPlayerWin = function (player, config) {
         // returns current player that won or null if no players won
         // assuming rows and cols always equal, so we'll just use rows.
         // TODO: refactor code to accept just one value to ensure board is always square
@@ -116,7 +116,7 @@
             return 1;
         }
 
-        if (sum === this.rows * 2) {
+        if (sum === this.rows * 5) {
             // player 2 wins
             return 2;
         }
@@ -125,18 +125,19 @@
         return 0;
     }
 
-    Board.prototype.calculateEndCondition = function () {
+    Board.prototype.calculateEndCondition = function (player) {
         // returns object containing winning condition, winning player, or null if end condition not met
         // check rows
-        var sum = 0,
-            sumRightDiag = 0,
+        var sum = '',
+            sumRightDiag = '',
             emptySpaceCount = 0,
             playerWon;
         //  use the empty space count to determine if a draw occurs
         for (var i = 0; i < this.rows; i++) {
+            sum = '';
             for (var j = 0; j < this.cols; j++) {
                 sum += this.board[i][j];
-                if (this.board[i][j] === -1) {
+                if (this.board[i][j] === '') {
                     emptySpaceCount += 1;
                 }
                 // compute diag sum
@@ -146,7 +147,7 @@
             }
         }
 
-        playerWon = this.checkPlayerWin(sum) || this.checkPlayerWin(sumRightDiag);
+        playerWon = this.checkPlayerWin(player, sum) || this.checkPlayerWin(player, sumRightDiag);
         if (playerWon !== 0) {
             // short circuit further checks
             // TODO: find a DRY-er way of doing this because this gets repeated
@@ -156,15 +157,16 @@
             };
         }
 
-        sum = 0;
+        sum = '';
         // check columns
         for (var i = 0; i < this.cols; i++) {
+            sum = '';
             for (var j = 0; j < this.rows; j++) {
                 sum += this.board[i][j];
             }
         }
 
-        playerWon = this.checkPlayerWin(sum);
+        playerWon = this.checkPlayerWin(player, sum);
         if (playerWon !== 0) {
             return {
                 win: true,
@@ -173,14 +175,13 @@
         }
 
         // check invert diagonal
-        sum = 0;
+        sum = '';
         var j = this.cols - 1;
         for (var i = 0; i < this.rows; i++) {
             sum += this.board[i][j];
             j -= 1;
         }
-
-        playerWon = this.checkPlayerWin(sum);
+        playerWon = this.checkPlayerWin(player, sum);
         if (playerWon !== 0) {
             return {
                 win: true,
@@ -230,7 +231,7 @@
         }
     }
 
-    function Game(row, cols) {
+    function Game(n) {
         this.state = {
             players: {
                 1: new Player('X', 1),
@@ -238,7 +239,7 @@
             },
             currentPlayer: 1
         };
-        this.board = new Board(row, cols);
+        this.board = new Board(n);
     }
 
     Game.prototype.initialize = function () {
@@ -258,10 +259,12 @@
 
     Game.prototype.makeMove = function (point) {
         // add player to the board, calculate end condition
-        var currentPlayer = this.state.currentPlayer;
-        var shouldSwapPlayer = this.board.addPiece(this.state.players[currentPlayer], point);
+        var playerIndex = this.state.currentPlayer,
+            currPlayer = this.state.players[playerIndex];
+        var shouldSwapPlayer = this.board.addPiece(currPlayer, point);
         // calculate ending condition
-        var endingCondition = this.board.calculateEndCondition();
+        var endingCondition = this.board.calculateEndCondition(currPlayer);
+        console.log(endingCondition)
         if (!endingCondition && shouldSwapPlayer) {
             this.swapPlayer();
             console.log(this.state.currentPlayer)
@@ -277,7 +280,7 @@
         // {x: <Number>, y: <Number>}
     }
 
-    var game = new Game(3, 3);
+    var game = new Game(3);
     game.initialize();
 
     canvas.addEventListener('mouseup', function (e) {
