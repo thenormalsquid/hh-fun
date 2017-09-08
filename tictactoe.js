@@ -43,7 +43,7 @@
                     return c.clickInBounds(point)
                 });
                 var indices = cell.getIndices();
-                var isSpotOpen = this.board[indices[0]][indices[1]] === -1;
+                var isSpotOpen = this.board[indices[0]][indices[1]] === '';
                 if (isSpotOpen) {
                     this.board[indices[0]][indices[1]] = player.name;
                     return true;
@@ -110,15 +110,9 @@
     Board.prototype.checkPlayerWin = function (player, config) {
         // returns current player that won or null if no players won
         // assuming rows and cols always equal, so we'll just use rows.
-        // TODO: refactor code to accept just one value to ensure board is always square
-        if (sum === this.rows) {
-            // player 1 wins
-            return 1;
-        }
-
-        if (sum === this.rows * 5) {
-            // player 2 wins
-            return 2;
+        var winningConfig = player.name.repeat(this.rows);
+        if (winningConfig === config) {
+            return player.num;
         }
 
         // nobody wins
@@ -129,13 +123,16 @@
         // returns object containing winning condition, winning player, or null if end condition not met
         // check rows
         var sum = '',
+            sumColumn = '',
             sumRightDiag = '',
             emptySpaceCount = 0,
             playerWon;
         //  use the empty space count to determine if a draw occurs
         for (var i = 0; i < this.rows; i++) {
             sum = '';
+            sumColumn = '';
             for (var j = 0; j < this.cols; j++) {
+                // sum rows
                 sum += this.board[i][j];
                 if (this.board[i][j] === '') {
                     emptySpaceCount += 1;
@@ -144,34 +141,20 @@
                 if (i === j) {
                     sumRightDiag += this.board[i][j];
                 }
+
+                // sum cols
+                sumColumn += this.board[j][i];
             }
-        }
+            playerWon = this.checkPlayerWin(player, sum) || this.checkPlayerWin(player, sumRightDiag) || this.checkPlayerWin(player, sumColumn);
 
-        playerWon = this.checkPlayerWin(player, sum) || this.checkPlayerWin(player, sumRightDiag);
-        if (playerWon !== 0) {
-            // short circuit further checks
-            // TODO: find a DRY-er way of doing this because this gets repeated
-            return {
-                win: true,
-                player: playerWon
-            };
-        }
-
-        sum = '';
-        // check columns
-        for (var i = 0; i < this.cols; i++) {
-            sum = '';
-            for (var j = 0; j < this.rows; j++) {
-                sum += this.board[i][j];
+            if (playerWon !== 0) {
+                // short circuit further checks
+                // TODO: find a DRY-er way of doing this because this gets repeated
+                return {
+                    win: true,
+                    player: playerWon
+                };
             }
-        }
-
-        playerWon = this.checkPlayerWin(player, sum);
-        if (playerWon !== 0) {
-            return {
-                win: true,
-                player: playerWon
-            };
         }
 
         // check invert diagonal
@@ -187,6 +170,13 @@
                 win: true,
                 player: playerWon
             };
+        }
+
+        if (playerWon === 0 && emptySpaceCount === 0) {
+            return {
+                win: false,
+                type: 'Draw'
+            }
         }
         return null;
     }
@@ -264,10 +254,8 @@
         var shouldSwapPlayer = this.board.addPiece(currPlayer, point);
         // calculate ending condition
         var endingCondition = this.board.calculateEndCondition(currPlayer);
-        console.log(endingCondition)
         if (!endingCondition && shouldSwapPlayer) {
             this.swapPlayer();
-            console.log(this.state.currentPlayer)
         }
 
         if (endingCondition) {
